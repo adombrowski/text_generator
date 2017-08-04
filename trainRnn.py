@@ -7,6 +7,16 @@ from keras.callbacks import ModelCheckpoint
 
 from nn_utils import *
 
+BATCH_SIZE = 32
+
+def patternCount(files):
+	count = 0
+	for file in files:
+		with open(file) as f:
+			data = json.load(f)
+		count += len(data.get('X'))
+	return count
+
 def main():
 
 	# set paths
@@ -29,6 +39,10 @@ def main():
 		# get training dimensions to feed LSTM
 		X_1, X_2, y_1 = getDim(files[0])
 
+		# get number of patterns that will be trained in batches
+		pattern_count = patternCount(files)
+		steps_per_epoch = pattern_count // BATCH_SIZE
+
 		"""
 		Define and compile LSTM model
 		"""
@@ -41,14 +55,14 @@ def main():
 		# only when there is a loss improvement
 
 		filepath="weights-improvement-%s-{epoch:02d}-{loss:.4f}.hdf5" % train_type
-		checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=1, save_best_only=True, mode='min')
+		checkpoint = ModelCheckpoint(filepath, monitor='loss', verbose=2, save_best_only=True, mode='min')
 		callbacks_list = [checkpoint]
 
 		model.compile(loss='categorical_crossentropy', optimizer='adam')
 
 		# fit the model
-		model.fit_generator(BatchGenerator(files), 
-			steps_per_epoch=10000, 
+		model.fit_generator(BatchGenerator(files, BATCH_SIZE), 
+			steps_per_epoch=steps_per_epoch, 
 			epochs=epoch, 
 			callbacks=callbacks_list,
 			)

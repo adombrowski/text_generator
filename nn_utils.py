@@ -23,14 +23,14 @@ def normalize(X, y, uniq_count, seq_length):
 	# append all unique elements to y, convert to binary categorical matrix
 	# then remove the rows added. This will ensure equal size and order across
 	# all batches
-	missing = [n for n in range(0,uniq_count+1) if n not in y]
+	missing = [n for n in range(0,uniq_count) if n not in y]
 	y_add = y + missing
 	y_cat = np_utils.to_categorical(y_add)
 	y_cat = y_cat[:len(y_cat)-len(missing)]
 
 	return X, y_cat
 
-def BatchGenerator(files):
+def BatchGenerator(files, batch_size):
 	"""
 	BatchGenerator() outputs normalized data from training json
 	to be run through fit_generator to train in batches each epoch
@@ -40,8 +40,8 @@ def BatchGenerator(files):
 		with open(file) as f:
 			data = json.load(f)
 		X, y, uniq_count, seq_length = returnData(data)
-		X_chunks = [X[n:n+32] for n in range(0,len(X), 32)]
-		y_chunks = [y[n:n+32] for n in range(0,len(y), 32)]
+		X_chunks = [X[n:n+batch_size] for n in range(0,len(X), batch_size)]
+		y_chunks = [y[n:n+batch_size] for n in range(0,len(y), batch_size)]
 		for x_c, y_c in zip(X_chunks, y_chunks):
 			X_norm, y_norm = normalize(x_c,y_c,uniq_count,seq_length)
 			yield(X_norm,y_norm)

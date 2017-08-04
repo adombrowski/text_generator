@@ -80,14 +80,11 @@ def main():
 	text = seed_pattern
 
 	# write text
-	for i in range(1):
+	for i in range(100):
 		x = np.reshape(pattern, (1, len(pattern), 1))
 		x = x / float(uniq_count)
-		print(x)
 		prediction = model.predict(x, verbose=0)
-		print(prediction)
 		index = np.argmax(prediction)
-		print(index)
 		result = int_to_element[str(index)]
 		text += result
 		pattern.append(index)
