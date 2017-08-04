@@ -18,24 +18,23 @@ ELEMENTS = {
 
 def generateTrain(data, element_type, seq_length, outpath):
 
-	# generate one list holding all book's elements
+	# generate one list holding all books' elements
 	el_all = [g for group in [d.get(element_type) for d in data] for g in group]
 	print(len(el_all))
 
 	# reduce to list of all unique elements
 	el_uniq = sorted(list(set(el_all)))
-	uniq_count = len(el_uniq)
 
 	# create mapping of unique characters, reverse mapping
-	el_to_int = dict((e, i) for i, e in enumerate(el_uniq))
-	int_to_el = dict((i, e) for i, e in enumerate(el_uniq))
+	el_to_int = dict((e, int(i)) for i, e in enumerate(el_uniq))
+	int_to_el = dict((int(i), e) for i, e in enumerate(el_uniq))
 
 	# initiate data dictionary
 	data = {
 		'element_to_int': el_to_int,
 		'int_to_element': int_to_el,
 		'seq_length': seq_length,
-		'unique_count': uniq_count
+		'unique_count': len(el_uniq)
 	}
 
 	# if # of elements < batch size, output
@@ -91,7 +90,7 @@ def loadBooks(files):
 def genIntSeq(elements, el_2_int, seq_length):
 	dataX = []
 	dataY = []
-	for n in range(0, len(elements) - seq_length, 1):
+	for n in range(0, len(elements) - seq_length):
 		seq_in = elements[n:n+seq_length]
 		seq_out = elements[n + seq_length]
 		dataX.append([el_2_int[e] for e in seq_in])
